@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2023, Michael Kazhdan
+Copyright (c) 2010, Michael Kazhdan
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,51 +26,46 @@ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF S
 DAMAGE.
 */
 
-#ifndef POINT_PARTITION_CLIENT_SERVER_INCLUDED
-#define POINT_PARTITION_CLIENT_SERVER_INCLUDED
+#ifndef PNG_INCLUDED
+#define PNG_INCLUDED
 
-#include <string>
-#include "PointPartition.h"
-#include "Socket.h"
-#include "MyMiscellany.h"
-#include "CmdLineParser.h"
-#include "VertexFactory.h"
-#include "Reconstructors.h"
-#include "PointExtent.h"
+#include <stdio.h>
+#include <vector>
+#include "Image.h"
+#include <png.h>
+#include <zlib.h>
 
 namespace PoissonRecon
 {
-	namespace PointPartitionClientServer
+	struct PNGReader : public ImageReader
 	{
-		template< typename Real >
-		struct ClientPartitionInfo
-		{
-			std::string in , tempDir , outDir , outHeader;
-			unsigned int slabs , filesPerDir , bufferSize , clientCount , sliceDir;
-			Real scale;
-			bool verbose;
+		PNGReader( const char* fileName , unsigned int& width , unsigned int& height , unsigned int& channels );
+		~PNGReader( void );
+		unsigned int nextRow( unsigned char* row );
+		static bool GetInfo( const char* fileName , unsigned int& width , unsigned int& height , unsigned int& channels );
+	protected:
+		png_structp _png_ptr;
+		png_infop _info_ptr;
+		png_infop _end_info ;
+		FILE* _fp;
+		unsigned char* _scratchRow;
+		unsigned int _currentRow;
+	};
 
-			ClientPartitionInfo( void );
-			ClientPartitionInfo( BinaryStream &stream );
+	struct PNGWriter : public ImageWriter
+	{
+		PNGWriter( const char* fileName , unsigned int width , unsigned int height , unsigned int channels , unsigned int quality=100 );
+		~PNGWriter( void );
+		unsigned int nextRow( const unsigned char* row );
+		unsigned int nextRows( const unsigned char* rows , unsigned int rowNum );
+	protected:
+		FILE* _fp;
+		png_structp _png_ptr;
+		png_infop _info_ptr;
+		unsigned int _currentRow;
+	};
 
-			void write( BinaryStream &stream ) const;
-		};
-
-
-		template< typename Real , unsigned int Dim >
-		std::pair< PointPartition::PointSetInfo< Real , Dim > , PointPartition::Partition > RunServer
-		(
-			std::vector< Socket > &clientSockets ,
-			ClientPartitionInfo< Real > clientPartitionInfo ,
-			bool loadBalance
-		);
-
-		template< typename Real , unsigned int Dim >
-		void RunClients( std::vector< Socket > &serverSockets );
-
-#include "PointPartitionClientServer.inl"
-	}
+#include "PNG.inl"
 }
 
-
-#endif // POINT_PARTITION_CLIENT_SERVER_INCLUDED
+#endif //PNG_INCLUDED
