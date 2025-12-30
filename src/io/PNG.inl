@@ -122,6 +122,7 @@ inline bool PNGReader::GetInfo( const char* fileName , unsigned int& width , uns
 PNGWriter::PNGWriter( const char* fileName , unsigned int width , unsigned int height , unsigned int channels , unsigned int quality )
 {
 	_currentRow = 0;
+	_width = width , _height = height , _channels = channels;
 
 	_png_ptr = png_create_write_struct( PNG_LIBPNG_VER_STRING , 0 , 0 , 0 );
 	if( !_png_ptr )	MK_THROW( "Failed to create png write struct" );
@@ -164,6 +165,6 @@ unsigned int PNGWriter::nextRow( const unsigned char* row )
 }
 unsigned int PNGWriter::nextRows( const unsigned char* rows , unsigned int rowNum )
 {
-	for( unsigned int r=0 ; r<rowNum ; r++ ) png_write_row( _png_ptr , (png_bytep)( rows + r * 3 * sizeof( unsigned char ) * _png_ptr->width ) );
+	for( unsigned int r=0 ; r<rowNum ; r++ ) png_write_row( _png_ptr , (png_bytep)( rows + r * _channels * sizeof( unsigned char ) * _width ) );
 	return _currentRow += rowNum;
 }

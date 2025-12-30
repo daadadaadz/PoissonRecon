@@ -34,16 +34,9 @@ DAMAGE.
 
 #include <setjmp.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#include "JPEG/jpeglib.h"
-#include "JPEG/jerror.h"
-#include "JPEG/jmorecfg.h"
-#else // !_WIN32
 #include <jpeglib.h>
 #include <jerror.h>
 #include <jmorecfg.h>
-#endif // _WIN32
 
 namespace PoissonRecon
 {
